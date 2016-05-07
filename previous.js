@@ -41,12 +41,23 @@ const visibilityFilter = (state = "SHOW_ALL", action) => {
   }
 }
 
-const todoApp = (state = {}, action) => {
-  return {
-    todos: todos(state.todos, action),
-    visibilityFilter: visibilityFilter(state.visibilityFilter, action)
-  }
-}
+// const todoApp = (state = {}, action) => {
+//   return {
+//     todos: todos(state.todos, action),
+//     visibilityFilter: visibilityFilter(state.visibilityFilter, action)
+//   }
+// }
+
+//is identical to the code below
+
+const {combineReducers} = Redux;
+//keys are state properties to be created in the store
+//props are the reducers
+//see: http://redux.js.org/docs/api/combineReducers.html
+const todoApp = combineReducers({
+  todos:todos,
+  visibilityFilter:visibilityFilter
+})
 
 /*---------------------------------------------------
 							TESTS

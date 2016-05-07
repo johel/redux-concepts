@@ -50,10 +50,32 @@ const visibilityFilter = (state = "SHOW_ALL", action) => {
 
 //is identical to the code below
 
-const {combineReducers} = Redux;
+//const {combineReducers} = Redux;
 //keys are state properties to be created in the store
 //props are the reducers
 //see: http://redux.js.org/docs/api/combineReducers.html
+
+//-----wrong implementation because changes parameter state value-----
+// const combineReducers = (mapStateToReducer) => {
+//   const combinedReducer = (state = {}, action)=>{
+//     for(st in mapStateToReducer){
+//       state[st] = mapStateToReducer[st](state[st],action);
+//     }
+//     return state;
+//   }
+//   return combinedReducer;
+// }
+
+const combineReducers = (reducers) => {
+  return (currentState={}, action) => {
+    return Object.keys(reducers).reduce(
+      (finalState, st) => {
+        finalState[st] = reducers[st](currentState[st], action);
+        return finalState;
+      }, {})
+  }
+}
+
 const todoApp = combineReducers({
   todos:todos,
   visibilityFilter:visibilityFilter

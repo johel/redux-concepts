@@ -1,14 +1,14 @@
-var initialId = 1;
+//var initialId = 1;
 
 /*---------------------------------------------------
 							REDUCERS
 --------------------------------------------------- */
 
-/* individual todo reducer */
+
 const todo = (state, action)=> {
   if(action.type == "ADD_TODO"){
     return {
-      id: initialId++,
+      id: action.id,
       text:action.text,
       completed:false
     }
@@ -22,17 +22,31 @@ const todo = (state, action)=> {
   }
 }
 
-/* todos reducer */
 const todos = (state=[], action) => {
   if(action.type == "ADD_TODO"){
     return [...state, todo(undefined,action)];
-  }else if(action.type="TOGGLE_TODO"){
+  }else if(action.type=="TOGGLE_TODO"){
     return state.map(t => todo(t,action));   
   }else{
     return state;
   }
 };
 
+const visibilityFilter = (state = "SHOW_ALL", action) => {
+  console.log(action.type);
+  if(action.type == "SET_VISIBILITY_FILTER"){
+    return action.filter;
+  }else{
+    return state;
+  }
+}
+
+const todoApp = (state = {}, action) => {
+  return {
+    todos: todos(state.todos, action),
+    visibilityFilter: visibilityFilter(state.visibilityFilter, action)
+  }
+}
 
 /*---------------------------------------------------
 							TESTS
@@ -41,6 +55,7 @@ const todos = (state=[], action) => {
 const testAddTodo = (todo) => {
   const beforeState = [];
   const action = {
+    id:1,
     text:'text',
     type:'ADD_TODO'
   }
@@ -75,8 +90,51 @@ const testToggleTodo = () => {
   expect(todos(beforeState, action)).toEqual(afterState);
 }
 
+const testVisibilityFilter = () => {
+  const stateBefore = "SHOW_ACTIVE"
+  const action = {type:"SET_VISIBILITY_FILTER", filter:"SHOW_ALL"};
+  const stateAfter = 'SHOW_ALL';
+  deepFreeze(stateBefore);
+  deepFreeze(action);
+  expect(visibilityFilter(stateBefore, action)).toEqual(stateAfter);
+      
+}
 
-testAddTodo();
-testToggleTodo()
 
-console.log('tests ok');
+// testAddTodo();
+// testToggleTodo();
+// testVisibilityFilter();
+
+/*---------------------------------------------------
+							LOGS
+--------------------------------------------------- */
+
+const {createStore} = Redux;
+
+const store = createStore(todoApp);
+
+console.log('initial state');
+console.log(store.getState());
+console.log('..............');
+
+
+console.log('add todo');
+store.dispatch({id:1,text:'first thing', type:"ADD_TODO"});
+console.log(store.getState());
+console.log('..............');
+
+
+console.log('add second todo');
+store.dispatch({id:2,text:'second thing', type:"ADD_TODO"});
+console.log(store.getState());
+console.log('..............');
+
+console.log('toggle second todo');
+store.dispatch({id:2, type:"TOGGLE_TODO"});
+console.log(store.getState());
+console.log('..............');
+
+console.log('change visibility filter');
+store.dispatch({filter:"SHOW_ACTIVE", type:"SET_VISIBILITY_FILTER"});
+console.log(store.getState());
+console.log('..............');

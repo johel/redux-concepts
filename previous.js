@@ -10,50 +10,43 @@ function counter(state = 0, action){
  
 }
 
-function createStore(reducer){
-  var listeners = [];
-  var state;
-  var store = {
-    getState:function(){
-      return state;
-    },
-    dispatch:function(action){
-      console.log('dispatch');
-      state = reducer(state, action);
-      console.log('state', state);
-      listeners.forEach((listener)=> listener());
-    },
-    subscribe:function(listener){
-      console.log('subscribe');
-      listeners.push(listener);
-      function unsubscribe(){
-        listeners = listeners.filter(item => item !== listener);
-      }
-      return unsubscribe;
-    }   
-  };
-  
-  store.dispatch({});
-  
-  return store;
-   
-}
+const Counter = ({
+  value,
+  onIncrement,
+  onDecrement
+})=>{
+    return <div>
+      <h1>{value}</h1>
+      <button onClick={onIncrement}>+</button>
+      <button onClick={onDecrement}>-</button>
+    </div>
+     };
 
-// const {createStore} = Redux;
+
+
+const {createStore} = Redux;
 
 const store = createStore(counter);
 
 const render = () => {
-  document.body.innerText = store.getState();
+  ReactDOM.render(
+    <Counter 
+      value = {store.getState()}
+      onIncrement = {
+        ()=> store.dispatch({type:"INCREMENT"})
+      }
+      onDecrement = {
+        ()=> store.dispatch({type:"DECREMENT"})
+      }
+    />,
+    document.querySelector('#root')
+  );
 };
 
 store.subscribe(render);
 render();
 
 
-document.addEventListener('click', function(){
-  store.dispatch({type:"INCREMENT"});
-});
 
 
 

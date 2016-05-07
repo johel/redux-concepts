@@ -1,52 +1,44 @@
-function counter(state = 0, action){
-
-  if(action.type === "INCREMENT"){
-    return state + 1;
-  }else if(action.type === "DECREMENT"){
-    return state -1;
-  }else{
-    return state;
-  }
- 
+var deepFreeze = window.deepFreeze;
+const addCounter = (list) => {
+//   list.push(0);
+  return [...list, 0];
 }
 
-const Counter = ({
-  value,
-  onIncrement,
-  onDecrement
-})=>{
-    return <div>
-      <h1>{value}</h1>
-      <button onClick={onIncrement}>+</button>
-      <button onClick={onDecrement}>-</button>
-    </div>
-     };
+const removeCounter = (list, index) => {
+  return [
+    ...list.slice(0,index), ...list.slice(index+1)
+  ];
+}
 
+const incrementCounter = (list, index) => {
+  return [
+    ...list.slice(0,index),list[index] + 1, ...list.slice(index+1)
+  ];
+}
 
+const testAddCounter = () => {
+  listBefore = [];
+  listAfter = [0];
+  deepFreeze(listBefore)
+  expect(addCounter(listBefore)).toEqual(listAfter);
+}
 
-const {createStore} = Redux;
+const testRemoveCounter = () => {
+  listBefore = [1,2,3];
+  listAfter = [1,3];
+  deepFreeze(listBefore)
+  expect(removeCounter(listBefore, 1)).toEqual(listAfter);
+}
 
-const store = createStore(counter);
+const testIncrementCounter = () => {
+  listBefore = [1,2,3];
+  listAfter = [1,2,4];
+  deepFreeze(listBefore);
+  expect(incrementCounter(listBefore,2)).toEqual(listAfter);
+}
 
-const render = () => {
-  ReactDOM.render(
-    <Counter 
-      value = {store.getState()}
-      onIncrement = {
-        ()=> store.dispatch({type:"INCREMENT"})
-      }
-      onDecrement = {
-        ()=> store.dispatch({type:"DECREMENT"})
-      }
-    />,
-    document.querySelector('#root')
-  );
-};
+testAddCounter();
+testRemoveCounter();
+testIncrementCounter();
 
-store.subscribe(render);
-render();
-
-
-
-
-
+console.log("deu certo")

@@ -1,23 +1,42 @@
 var initialId = 1;
-const todos = (state=[], action) => {
+
+/*---------------------------------------------------
+							REDUCERS
+--------------------------------------------------- */
+
+/* individual todo reducer */
+const todo = (state, action)=> {
   if(action.type == "ADD_TODO"){
-    return [...state, {
+    return {
       id: initialId++,
       text:action.text,
       completed:false
-    }];
+    }
+  }else if(action.type=="TOGGLE_TODO"){
+    if(action.id !== state.id){
+      return state;
+    }
+    return {...state, completed:!state.completed};
+  }else{
+    return state;
+  }
+}
+
+/* todos reducer */
+const todos = (state=[], action) => {
+  if(action.type == "ADD_TODO"){
+    return [...state, todo(undefined,action)];
   }else if(action.type="TOGGLE_TODO"){
-    return state.map(t => {
-      if(t.id !== action.id){
-        return t;
-      }else{
-        return Object.assign({}, t, {completed:!t.completed});
-      }
-    })   
+    return state.map(t => todo(t,action));   
   }else{
     return state;
   }
 };
+
+
+/*---------------------------------------------------
+							TESTS
+--------------------------------------------------- */
 
 const testAddTodo = (todo) => {
   const beforeState = [];

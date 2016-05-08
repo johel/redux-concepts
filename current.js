@@ -64,6 +64,35 @@ const FilterLink = ({filter,currentFilter, children}) => {
   }
 }
 
+const Todo = ({
+  onClick,
+  completed,
+  text
+}) => {
+  return <li 
+    onClick = {onClick}
+    style={{textDecoration: completed? 'line-through' : 'none'}}>
+      {text}
+  </li>
+}
+
+const TodoList = ({
+	todos,
+	onTodoClick
+}) => {
+	return <ul>
+      {todos.map( (todo) => 
+			<Todo 
+				key = {todo.id}
+				{...todo}
+				onClick={()=> onTodoClick(todo.id)}
+			/>
+		)}
+	</ul>
+}
+
+
+
 const getVisibleTodos = (todos, currentFilter) => {
   if(currentFilter == "SHOW_ACTIVE"){
     return todos.filter(t => !t.completed);
@@ -88,24 +117,27 @@ class TodoApp extends Component{
         <button onClick={this.handleClick.bind(this)}>
           Add
         </button>
-        <ul>
-          {visibleTodos.map((todo)=>{
-            return <li
-             onClick={this.toggleTodo.bind(null,todo)}
-             style={{textDecoration: todo.completed? 'line-through' : 'none'}}
-             key={todo.id}>{todo.text}</li>
-          })}
-        </ul>
-        Show 
-        {' '}
-        <FilterLink filter="SHOW_ALL"
-          currentFilter={visibilityFilter}>All</FilterLink>
-        {' '}
-        <FilterLink filter="SHOW_ACTIVE"
-          currentFilter={visibilityFilter}>Active</FilterLink>
-       	{' '}
-        <FilterLink filter="SHOW_COMPLETED"
-          currentFilter={visibilityFilter}>Completed</FilterLink>
+      	<TodoList
+      	  todos={visibleTodos}
+      	  onTodoClick = { id => 
+      	  	store.dispatch({
+      	  		type:"TOGGLE_TODO",
+      	  		id:id
+      	  	})
+      	  }
+      	/>
+      	<p>
+	        Show 
+	        {' '}
+	        <FilterLink filter="SHOW_ALL"
+	          currentFilter={visibilityFilter}>All</FilterLink>
+	        {' '}
+	        <FilterLink filter="SHOW_ACTIVE"
+	          currentFilter={visibilityFilter}>Active</FilterLink>
+	       	{' '}
+	        <FilterLink filter="SHOW_COMPLETED"
+	          currentFilter={visibilityFilter}>Completed</FilterLink>
+        </p>
       </div>
     )
   }

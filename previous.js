@@ -5,7 +5,7 @@
 --------------------------------------------------- */
 
 
-const todo = (state, action)=> {
+const todo = (state, action) => {
   if(action.type == "ADD_TODO"){
     return {
       id: action.id,
@@ -41,133 +41,77 @@ const visibilityFilter = (state = "SHOW_ALL", action) => {
   }
 }
 
-// const todoApp = (state = {}, action) => {
-//   return {
-//     todos: todos(state.todos, action),
-//     visibilityFilter: visibilityFilter(state.visibilityFilter, action)
-//   }
-// }
-
-//is identical to the code below
-
-//const {combineReducers} = Redux;
-//keys are state properties to be created in the store
-//props are the reducers
-//see: http://redux.js.org/docs/api/combineReducers.html
-
-//-----wrong implementation because changes parameter state value-----
-// const combineReducers = (mapStateToReducer) => {
-//   const combinedReducer = (state = {}, action)=>{
-//     for(st in mapStateToReducer){
-//       state[st] = mapStateToReducer[st](state[st],action);
-//     }
-//     return state;
-//   }
-//   return combinedReducer;
-// }
-
-const combineReducers = (reducers) => {
-  return (currentState={}, action) => {
-    return Object.keys(reducers).reduce(
-      (finalState, st) => {
-        finalState[st] = reducers[st](currentState[st], action);
-        return finalState;
-      }, {})
-  }
-}
+const {combineReducers, createStore} = Redux;
+const {Component} = React;
 
 const todoApp = combineReducers({
   todos:todos,
   visibilityFilter:visibilityFilter
 })
 
-/*---------------------------------------------------
-							TESTS
---------------------------------------------------- */
-
-const testAddTodo = (todo) => {
-  const beforeState = [];
-  const action = {
-    id:1,
-    text:'text',
-    type:'ADD_TODO'
-  }
-  const afterState = [{
-    id:1,
-    text:'text',
-    completed:false
-  }]
-  deepFreeze(beforeState);
-  deepFreeze(action);
-  expect(todos(beforeState, action)).toEqual(afterState);
-  
-}
-
-const testToggleTodo = () => {
-  const beforeState= [
-    {id:1, text:'text1', completed:false},
-    {id:2, text:'text2', completed:false}
-  ]
- 
-  const action = {
-    type:"TOGGLE_TODO",
-    id:2
-  };
-  const afterState = [
-    {id:1, text:'text1', completed:false},
-    {id:2, text:'text2', completed:true}
-  ];
-  
-  deepFreeze(beforeState);
-  deepFreeze(action);
-  expect(todos(beforeState, action)).toEqual(afterState);
-}
-
-const testVisibilityFilter = () => {
-  const stateBefore = "SHOW_ACTIVE"
-  const action = {type:"SET_VISIBILITY_FILTER", filter:"SHOW_ALL"};
-  const stateAfter = 'SHOW_ALL';
-  deepFreeze(stateBefore);
-  deepFreeze(action);
-  expect(visibilityFilter(stateBefore, action)).toEqual(stateAfter);
-      
-}
-
-
-// testAddTodo();
-// testToggleTodo();
-// testVisibilityFilter();
-
-/*---------------------------------------------------
-							LOGS
---------------------------------------------------- */
-
-const {createStore} = Redux;
-
 const store = createStore(todoApp);
 
-console.log('initial state');
-console.log(store.getState());
-console.log('..............');
 
 
-console.log('add todo');
-store.dispatch({id:1,text:'first thing', type:"ADD_TODO"});
-console.log(store.getState());
-console.log('..............');
+
+var initialId = 1;
+
+//ES6 needs to call bind on click event
+class TodoApp extends Component{
+  render(){
+    return(
+       <div>
+        <input ref={(ref) => this.myTextInput = ref} type="text" />
+        <button onClick={this.handleClick.bind(this)}>
+          Add
+        </button>
+        <ul>
+          {this.props.todos.map((todo)=>{
+            return <li key={todo.id}>{todo.text} - {todo.id}</li>
+          })}
+        </ul>
+      </div>
+    )
+  }
+  
+  handleClick(){
+    const action = {type:"ADD_TODO", id:initialId++, text:this.myTextInput.value};
+    store.dispatch(action);
+    this.myTextInput.value = "";
+  }
+
+}
+
+//ES5 syntax
+// var TodoApp = React.createClass({
+//   render:function(){
+//      return(
+//        <div>
+//         <input ref={(ref) => this.myTextInput = ref} type="text" />
+//         <button onClick={this.handleClick}>Add</button>
+//         <ul>
+//           {this.props.todos.map((todo)=>{
+//             return <li key={todo.id}>{todo.text} - {todo.id}</li>
+//           })}
+//         </ul>
+//       </div>
+//     )
+//   },
+//   handleClick: function(){
+//     const action = {type:"ADD_TODO", id:initialId++, text:this.myTextInput.value};
+//     store.dispatch(action);
+//     this.myTextInput.value = "";
+//   }
+// })
+
+const render = () => {
+  ReactDOM.render(<TodoApp todos={store.getState().todos}/>, document.querySelector('#root'));
+}
+
+store.subscribe(render);
+render();
 
 
-console.log('add second todo');
-store.dispatch({id:2,text:'second thing', type:"ADD_TODO"});
-console.log(store.getState());
-console.log('..............');
 
-console.log('toggle second todo');
-store.dispatch({id:2, type:"TOGGLE_TODO"});
-console.log(store.getState());
-console.log('..............');
 
-console.log('change visibility filter');
-store.dispatch({filter:"SHOW_ACTIVE", type:"SET_VISIBILITY_FILTER"});
-console.log(store.getState());
-console.log('..............');
+

@@ -67,12 +67,20 @@ class TodoApp extends Component{
         </button>
         <ul>
           {this.props.todos.map((todo)=>{
-            return <li key={todo.id}>{todo.text} - {todo.id}</li>
+            return <li
+             onClick={this.toggleTodo.bind(null,todo)}
+             style={{textDecoration: todo.completed? 'line-through' : 'none'}}
+             key={todo.id}>{todo.text}</li>
           })}
         </ul>
       </div>
     )
   }
+  
+  toggleTodo(todo){
+    store.dispatch({type:"TOGGLE_TODO", id:todo.id})
+  }
+
   
   handleClick(){
     const action = {type:"ADD_TODO", id:initialId++, text:this.myTextInput.value};
@@ -82,29 +90,8 @@ class TodoApp extends Component{
 
 }
 
-//ES5 syntax
-// var TodoApp = React.createClass({
-//   render:function(){
-//      return(
-//        <div>
-//         <input ref={(ref) => this.myTextInput = ref} type="text" />
-//         <button onClick={this.handleClick}>Add</button>
-//         <ul>
-//           {this.props.todos.map((todo)=>{
-//             return <li key={todo.id}>{todo.text} - {todo.id}</li>
-//           })}
-//         </ul>
-//       </div>
-//     )
-//   },
-//   handleClick: function(){
-//     const action = {type:"ADD_TODO", id:initialId++, text:this.myTextInput.value};
-//     store.dispatch(action);
-//     this.myTextInput.value = "";
-//   }
-// })
-
 const render = () => {
+  console.log('store state', store.getState());
   ReactDOM.render(<TodoApp todos={store.getState().todos}/>, document.querySelector('#root'));
 }
 

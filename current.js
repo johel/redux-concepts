@@ -165,17 +165,22 @@ const TodoList = ({
 	</ul>
 }
 
-const AddTodo = ({
-	onAddTodoClick
-}) => {
+var initialId = 1;
+const AddTodo = () => {
 	let input;
+
+	function handleAddClick(){
+		console.log('hadle click input', input);
+    const action = {type:"ADD_TODO", id:initialId++, text:input.value};
+    store.dispatch(action);
+    input.value = "";
+  }
+
 	return (
 		<div>
 	    <input ref={(ref) => input = ref} type="text" />
 	    <button
-	    	onClick={() => {
-	    		onAddTodoClick(input);
-		  }}>
+	    	onClick={handleAddClick}>
 	      Add
 	    </button>
 		</div>
@@ -197,41 +202,19 @@ const Footer = () => {
 }
 
 
-var initialId = 1;
-
-const TodoApp = ({
-	todos,
-	visibilityFilter
-}) => {
-
-	function handleAddClick(input){
-    const action = {type:"ADD_TODO", id:initialId++, text:input.value};
-    store.dispatch(action);
-    input.value = "";
-  }
-
-  function handleFooterClick(filter){
-  	store.dispatch({type:"SET_VISIBILITY_FILTER", filter:filter});
-  }
-
+const TodoApp = () => {
 	return(
     <div>
-      <AddTodo onAddTodoClick = {handleAddClick} />
+      <AddTodo />
     	<VisibleTodoList/>
 			<Footer/>
     </div>
   )
 }
 
-const render = () => {
-  //console.log('store state', store.getState());
-  ReactDOM.render(
-    <TodoApp {...store.getState()} 
-    />, document.querySelector('#root'));
-}
 
-store.subscribe(render);
-render();
+ReactDOM.render(<TodoApp/>, document.querySelector('#root'));
+
 
 
 

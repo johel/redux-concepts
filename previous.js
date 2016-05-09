@@ -50,6 +50,16 @@ const todoApp = combineReducers({
 
 const store = createStore(todoApp);
 
+const getVisibleTodos = (todos, currentFilter) => {
+  if(currentFilter == "SHOW_ACTIVE"){
+    return todos.filter(t => !t.completed);
+  }else if(currentFilter == "SHOW_COMPLETED"){
+    return todos.filter(t => t.completed);
+  }else{
+    return todos;
+  }
+}
+
 
 /*---------------------------------------------------
 							COMPONENTS
@@ -95,6 +105,35 @@ class FilterLink extends Component {
 				{props.children}
 			</Link>
 		)
+	}
+
+}
+
+class VisibleTodoList extends Component{
+	componentDidMount(){
+		let that = this;
+		this.unsubscribe = store.subscribe(() => that.forceUpdate());
+	}
+
+	componentWillUnmount(){
+		this.unsubscribe();
+	}
+
+	todoToggleClick(id){
+		store.dispatch({
+  		type:"TOGGLE_TODO",
+  		id
+  	});
+	}
+
+	render(){
+		const state = store.getState();
+		const visibleTodos = getVisibleTodos(state.todos, state.visibilityFilter)
+  	return <TodoList
+  	  todos={visibleTodos}
+  	  onTodoClick = {this.todoToggleClick.bind(this)}
+  	/>
+
 	}
 }
 
@@ -158,18 +197,6 @@ const Footer = () => {
 }
 
 
-
-const getVisibleTodos = (todos, currentFilter) => {
-  if(currentFilter == "SHOW_ACTIVE"){
-    return todos.filter(t => !t.completed);
-  }else if(currentFilter == "SHOW_COMPLETED"){
-    return todos.filter(t => t.completed);
-  }else{
-    return todos;
-  }
-}
-
-
 var initialId = 1;
 
 const TodoApp = ({
@@ -190,15 +217,7 @@ const TodoApp = ({
 	return(
     <div>
       <AddTodo onAddTodoClick = {handleAddClick} />
-    	<TodoList
-    	  todos={getVisibleTodos(todos, visibilityFilter)}
-    	  onTodoClick = { id => 
-    	  	store.dispatch({
-    	  		type:"TOGGLE_TODO",
-    	  		id:id
-    	  	})
-    	  }
-    	/>
+    	<VisibleTodoList/>
 			<Footer/>
     </div>
   )
@@ -213,7 +232,6 @@ const render = () => {
 
 store.subscribe(render);
 render();
-
 
 
 

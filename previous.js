@@ -150,40 +150,39 @@ const getVisibleTodos = (todos, currentFilter) => {
 
 var initialId = 1;
 
-//ES6 needs to call bind on click event
-class TodoApp extends Component{
-  render(){
-    const {todos, visibilityFilter} = this.props;
-    const visibleTodos = getVisibleTodos(todos, visibilityFilter);
-    return(
-       <div>
-        <AddTodo onAddTodoClick = {this.handleAddClick} />
-      	<TodoList
-      	  todos={visibleTodos}
-      	  onTodoClick = { id => 
-      	  	store.dispatch({
-      	  		type:"TOGGLE_TODO",
-      	  		id:id
-      	  	})
-      	  }
-      	/>
-  			<Footer
-  				visibilityFilter={visibilityFilter}
-  				onFilterClick = {(filter) => {
-  					store.dispatch({type:"SET_VISIBILITY_FILTER", filter:filter});
-  				}}
-  			/>
-      </div>
-    )
-  }
+const TodoApp = ({
+	todos,
+	visibilityFilter
+}) => {
 
-  
-  handleAddClick(input){
+	function handleAddClick(input){
     const action = {type:"ADD_TODO", id:initialId++, text:input.value};
     store.dispatch(action);
     input.value = "";
   }
 
+  function handleFooterClick(filter){
+  	store.dispatch({type:"SET_VISIBILITY_FILTER", filter:filter});
+  }
+
+	return(
+    <div>
+      <AddTodo onAddTodoClick = {handleAddClick} />
+    	<TodoList
+    	  todos={getVisibleTodos(todos, visibilityFilter)}
+    	  onTodoClick = { id => 
+    	  	store.dispatch({
+    	  		type:"TOGGLE_TODO",
+    	  		id:id
+    	  	})
+    	  }
+    	/>
+			<Footer
+				visibilityFilter={visibilityFilter}
+				onFilterClick = {handleFooterClick}
+			/>
+    </div>
+  )
 }
 
 const render = () => {
@@ -195,6 +194,7 @@ const render = () => {
 
 store.subscribe(render);
 render();
+
 
 
 

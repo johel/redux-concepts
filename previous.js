@@ -55,13 +55,13 @@ const store = createStore(todoApp);
 							COMPONENTS
 --------------------------------------------------- */
 
-const FilterLink = ({filter,currentFilter, children, onClick}) => {
-  if(filter !== currentFilter){
+const Link = ({active, children, onClick}) => {
+  if(!active){
     return (
 	    <a href="#"
 	      onClick = {(e) => {
 	      	e.preventDefault();
-	        onClick(filter)
+	        onClick()
 	      }}>
 	    		{children}
 	    </a>
@@ -70,6 +70,34 @@ const FilterLink = ({filter,currentFilter, children, onClick}) => {
     return <span>{children}</span>
   }
 }
+
+class FilterLink extends Component {
+
+	componentDidMount(){
+		let that = this;
+		this.unsubscribe = store.subscribe(() => that.forceUpdate());
+	}
+
+	componentWillUnmount(){
+		this.unsubscribe();
+	}
+
+	render(){
+		const props = this.props;
+		const state = store.getState();
+		return (
+			<Link 
+				active = {props.filter === state.visibilityFilter}
+				onClick = { () => {
+					store.dispatch({type:"SET_VISIBILITY_FILTER", filter:props.filter});
+				}}
+			>
+				{props.children}
+			</Link>
+		)
+	}
+}
+
 
 const Todo = ({
   onClick,
@@ -115,22 +143,16 @@ const AddTodo = ({
 	)
 }
 
-const Footer = ({
-	visibilityFilter,
-	onFilterClick
-}) => {
+const Footer = () => {
 	return (
   	<p>
 	    Show 
 	    {' '}
-	    <FilterLink filter="SHOW_ALL" onClick={onFilterClick}
-	      currentFilter={visibilityFilter}>All</FilterLink>
+	    <FilterLink filter="SHOW_ALL">All</FilterLink>
 	    {' '}
-	    <FilterLink filter="SHOW_ACTIVE" onClick={onFilterClick}
-	      currentFilter={visibilityFilter}>Active</FilterLink>
+	    <FilterLink filter="SHOW_ACTIVE">Active</FilterLink>
 	   	{' '}
-	    <FilterLink filter="SHOW_COMPLETED" onClick={onFilterClick}
-	      currentFilter={visibilityFilter}>Completed</FilterLink>
+	    <FilterLink filter="SHOW_COMPLETED">Completed</FilterLink>
 	  </p>
 	)
 }
@@ -177,10 +199,7 @@ const TodoApp = ({
     	  	})
     	  }
     	/>
-			<Footer
-				visibilityFilter={visibilityFilter}
-				onFilterClick = {handleFooterClick}
-			/>
+			<Footer/>
     </div>
   )
 }

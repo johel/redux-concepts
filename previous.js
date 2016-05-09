@@ -64,6 +64,10 @@ const FilterLink = ({filter,currentFilter, children}) => {
   }
 }
 
+/*---------------------------------------------------
+							COMPONENTS
+--------------------------------------------------- */
+
 const Todo = ({
   onClick,
   completed,
@@ -91,6 +95,23 @@ const TodoList = ({
 	</ul>
 }
 
+const AddTodo = ({
+	onAddTodoClick
+}) => {
+	let input;
+	return (
+		<div>
+	    <input ref={(ref) => input = ref} type="text" />
+	    <button
+	    	onClick={() => {
+	    		onAddTodoClick(input);
+		  }}>
+	      Add
+	    </button>
+		</div>
+	)
+}
+
 
 
 const getVisibleTodos = (todos, currentFilter) => {
@@ -113,10 +134,7 @@ class TodoApp extends Component{
     const visibleTodos = getVisibleTodos(todos, visibilityFilter);
     return(
        <div>
-        <input ref={(ref) => this.myTextInput = ref} type="text" />
-        <button onClick={this.handleClick.bind(this)}>
-          Add
-        </button>
+        <AddTodo onAddTodoClick = {this.handleAddClick} />
       	<TodoList
       	  todos={visibleTodos}
       	  onTodoClick = { id => 
@@ -141,16 +159,12 @@ class TodoApp extends Component{
       </div>
     )
   }
-  
-  toggleTodo(todo){
-    store.dispatch({type:"TOGGLE_TODO", id:todo.id})
-  }
 
   
-  handleClick(){
-    const action = {type:"ADD_TODO", id:initialId++, text:this.myTextInput.value};
+  handleAddClick(input){
+    const action = {type:"ADD_TODO", id:initialId++, text:input.value};
     store.dispatch(action);
-    this.myTextInput.value = "";
+    input.value = "";
   }
 
 }

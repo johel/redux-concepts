@@ -136,39 +136,62 @@ FilterLink.contextTypes = {
 	store: React.PropTypes.object
 };
 
-class VisibleTodoList extends Component{
-	componentDidMount(){
-		const {store} = this.context;
-		let that = this;
-		this.unsubscribe = store.subscribe(() => that.forceUpdate());
-	}
+const mapStateToProps = (state) => {
+	return {
+		todos: getVisibleTodos(state.todos, state.visibilityFilter)
+	};
+};
 
-	componentWillUnmount(){
-		this.unsubscribe();
-	}
+const mapDispatchToProps = (dispatch) => {
+	return {
+		onTodoClick : (id) => {
+			dispatch({
+				type:"TOGGLE_TODO",
+  			id
+  		})
+		}
+	};
+};
 
-	todoToggleClick(id){
-		const {store} = this.context;
-		store.dispatch({
-  		type:"TOGGLE_TODO",
-  		id
-  	});
-	}
+const VisibleTodoList = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(TodoList);
+//!!!!!!!!1is equal to the code below!!!!!!!!!
 
-	render(){
-		const {store} = this.context;
-		const state = store.getState();
-		const visibleTodos = getVisibleTodos(state.todos, state.visibilityFilter)
-  	return <TodoList
-  	  todos={visibleTodos}
-  	  onTodoClick = {this.todoToggleClick.bind(this)}
-  	/>
+// class VisibleTodoList extends Component{
+// 	componentDidMount(){
+// 		const {store} = this.context;
+// 		let that = this;
+// 		this.unsubscribe = store.subscribe(() => that.forceUpdate());
+// 	}
 
-	}
-}
-VisibleTodoList.contextTypes = {
-	store: React.PropTypes.object
-}
+// 	componentWillUnmount(){
+// 		this.unsubscribe();
+// 	}
+
+// 	todoToggleClick(id){
+// 		const {store} = this.context;
+// 		store.dispatch({
+//   		type:"TOGGLE_TODO",
+//   		id
+//   	});
+// 	}
+
+// 	render(){
+// 		const {store} = this.context;
+// 		const state = store.getState();
+// 		const visibleTodos = getVisibleTodos(state.todos, state.visibilityFilter)
+//   	return <TodoList
+//   	  todos={visibleTodos}
+//   	  onTodoClick = {this.todoToggleClick.bind(this)}
+//   	/>
+
+// 	}
+// }
+// VisibleTodoList.contextTypes = {
+// 	store: React.PropTypes.object
+// }
 
 
 var initialId = 1;

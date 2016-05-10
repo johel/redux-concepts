@@ -57,6 +57,8 @@ const getVisibleTodos = (todos, currentFilter) => {
 --------------------------------------------------- */
 
 const {Component} = React;
+const {combineReducers, createStore} = Redux;
+const {Provider, connect} = ReactRedux;
 
 const Link = ({active, children, onClick}) => {
   if(!active){
@@ -72,6 +74,33 @@ const Link = ({active, children, onClick}) => {
   }else{
     return <span>{children}</span>
   }
+}
+
+const Todo = ({
+  onClick,
+  completed,
+  text
+}) => {
+  return <li 
+    onClick = {onClick}
+    style={{textDecoration: completed? 'line-through' : 'none'}}>
+      {text}
+  </li>
+}
+
+const TodoList = ({
+	todos,
+	onTodoClick
+}) => {
+	return <ul>
+      {todos.map( (todo) => 
+			<Todo 
+				key = {todo.id}
+				{...todo}
+				onClick={()=> onTodoClick(todo.id)}
+			/>
+		)}
+	</ul>
 }
 
 class FilterLink extends Component {
@@ -142,33 +171,6 @@ VisibleTodoList.contextTypes = {
 }
 
 
-const Todo = ({
-  onClick,
-  completed,
-  text
-}) => {
-  return <li 
-    onClick = {onClick}
-    style={{textDecoration: completed? 'line-through' : 'none'}}>
-      {text}
-  </li>
-}
-
-const TodoList = ({
-	todos,
-	onTodoClick
-}) => {
-	return <ul>
-      {todos.map( (todo) => 
-			<Todo 
-				key = {todo.id}
-				{...todo}
-				onClick={()=> onTodoClick(todo.id)}
-			/>
-		)}
-	</ul>
-}
-
 var initialId = 1;
 const AddTodo = (props, {store}) => {
 	let input;
@@ -209,7 +211,6 @@ const Footer = () => {
 }
 
 
-const {combineReducers, createStore} = Redux;
 
 const todoApp = combineReducers({
   todos:todos,
@@ -225,21 +226,6 @@ const TodoApp = () => {
     </div>
   )
 }
-
-class Provider extends Component{
-	getChildContext(){
-		return {
-			store:this.props.store
-		}
-	}
-
-	render(){
-		return this.props.children;
-	}
-}
-Provider.childContextTypes = {
-	store: React.PropTypes.object
-};
 
 
 ReactDOM.render(

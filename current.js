@@ -57,6 +57,8 @@ const getVisibleTodos = (todos, currentFilter) => {
 --------------------------------------------------- */
 
 const {Component} = React;
+const {combineReducers, createStore} = Redux;
+const {Provider, connect} = ReactRedux;
 
 const Link = ({active, children, onClick}) => {
   if(!active){
@@ -72,6 +74,33 @@ const Link = ({active, children, onClick}) => {
   }else{
     return <span>{children}</span>
   }
+}
+
+const Todo = ({
+  onClick,
+  completed,
+  text
+}) => {
+  return <li 
+    onClick = {onClick}
+    style={{textDecoration: completed? 'line-through' : 'none'}}>
+      {text}
+  </li>
+}
+
+const TodoList = ({
+	todos,
+	onTodoClick
+}) => {
+	return <ul>
+      {todos.map( (todo) => 
+			<Todo 
+				key = {todo.id}
+				{...todo}
+				onClick={()=> onTodoClick(todo.id)}
+			/>
+		)}
+	</ul>
 }
 
 class FilterLink extends Component {
@@ -107,67 +136,63 @@ FilterLink.contextTypes = {
 	store: React.PropTypes.object
 };
 
-class VisibleTodoList extends Component{
-	componentDidMount(){
-		const {store} = this.context;
-		let that = this;
-		this.unsubscribe = store.subscribe(() => that.forceUpdate());
-	}
+const mapStateToProps = (state) => {
+	return {
+		todos: getVisibleTodos(state.todos, state.visibilityFilter)
+	};
+};
 
-	componentWillUnmount(){
-		this.unsubscribe();
-	}
+const mapDispatchToProps = (dispatch) => {
+	return {
+		onTodoClick : (id) => {
+			dispatch({
+				type:"TOGGLE_TODO",
+  			id
+  		})
+		}
+	};
+};
 
-	todoToggleClick(id){
-		const {store} = this.context;
-		store.dispatch({
-  		type:"TOGGLE_TODO",
-  		id
-  	});
-	}
+const VisibleTodoList = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(TodoList);
+//!!!!!!!!1is equal to the code below!!!!!!!!!
 
-	render(){
-		const {store} = this.context;
-		const state = store.getState();
-		const visibleTodos = getVisibleTodos(state.todos, state.visibilityFilter)
-  	return <TodoList
-  	  todos={visibleTodos}
-  	  onTodoClick = {this.todoToggleClick.bind(this)}
-  	/>
+// class VisibleTodoList extends Component{
+// 	componentDidMount(){
+// 		const {store} = this.context;
+// 		let that = this;
+// 		this.unsubscribe = store.subscribe(() => that.forceUpdate());
+// 	}
 
-	}
-}
-VisibleTodoList.contextTypes = {
-	store: React.PropTypes.object
-}
+// 	componentWillUnmount(){
+// 		this.unsubscribe();
+// 	}
 
+// 	todoToggleClick(id){
+// 		const {store} = this.context;
+// 		store.dispatch({
+//   		type:"TOGGLE_TODO",
+//   		id
+//   	});
+// 	}
 
-const Todo = ({
-  onClick,
-  completed,
-  text
-}) => {
-  return <li 
-    onClick = {onClick}
-    style={{textDecoration: completed? 'line-through' : 'none'}}>
-      {text}
-  </li>
-}
+// 	render(){
+// 		const {store} = this.context;
+// 		const state = store.getState();
+// 		const visibleTodos = getVisibleTodos(state.todos, state.visibilityFilter)
+//   	return <TodoList
+//   	  todos={visibleTodos}
+//   	  onTodoClick = {this.todoToggleClick.bind(this)}
+//   	/>
 
-const TodoList = ({
-	todos,
-	onTodoClick
-}) => {
-	return <ul>
-      {todos.map( (todo) => 
-			<Todo 
-				key = {todo.id}
-				{...todo}
-				onClick={()=> onTodoClick(todo.id)}
-			/>
-		)}
-	</ul>
-}
+// 	}
+// }
+// VisibleTodoList.contextTypes = {
+// 	store: React.PropTypes.object
+// }
+
 
 var initialId = 1;
 const AddTodo = (props, {store}) => {
@@ -209,8 +234,6 @@ const Footer = () => {
 }
 
 
-const {combineReducers, createStore} = Redux;
-const {Provider} = ReactRedux;
 
 const todoApp = combineReducers({
   todos:todos,

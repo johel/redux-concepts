@@ -136,13 +136,13 @@ FilterLink.contextTypes = {
 	store: React.PropTypes.object
 };
 
-const mapStateToProps = (state) => {
+const mapStateToVisibleTodoListProps = (state) => {
 	return {
 		todos: getVisibleTodos(state.todos, state.visibilityFilter)
 	};
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToVisibleTodoListProps = (dispatch) => {
 	return {
 		onTodoClick : (id) => {
 			dispatch({
@@ -154,54 +154,19 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 const VisibleTodoList = connect(
-	mapStateToProps,
-	mapDispatchToProps
+	mapStateToVisibleTodoListProps,
+	mapDispatchToVisibleTodoListProps
 )(TodoList);
-//!!!!!!!!1is equal to the code below!!!!!!!!!
-
-// class VisibleTodoList extends Component{
-// 	componentDidMount(){
-// 		const {store} = this.context;
-// 		let that = this;
-// 		this.unsubscribe = store.subscribe(() => that.forceUpdate());
-// 	}
-
-// 	componentWillUnmount(){
-// 		this.unsubscribe();
-// 	}
-
-// 	todoToggleClick(id){
-// 		const {store} = this.context;
-// 		store.dispatch({
-//   		type:"TOGGLE_TODO",
-//   		id
-//   	});
-// 	}
-
-// 	render(){
-// 		const {store} = this.context;
-// 		const state = store.getState();
-// 		const visibleTodos = getVisibleTodos(state.todos, state.visibilityFilter)
-//   	return <TodoList
-//   	  todos={visibleTodos}
-//   	  onTodoClick = {this.todoToggleClick.bind(this)}
-//   	/>
-
-// 	}
-// }
-// VisibleTodoList.contextTypes = {
-// 	store: React.PropTypes.object
-// }
 
 
 var initialId = 1;
-const AddTodo = (props, {store}) => {
+let AddTodo = ({dispatch}) => {
 	let input;
 
 	function handleAddClick(){
 		console.log('hadle click input', input);
     const action = {type:"ADD_TODO", id:initialId++, text:input.value};
-    store.dispatch(action);
+    dispatch(action);
     input.value = "";
   }
 
@@ -215,9 +180,20 @@ const AddTodo = (props, {store}) => {
 		</div>
 	)
 }
-AddTodo.contextTypes = {
-	store: React.PropTypes.object
-};
+
+// AddTodo = connect(
+// 	state => {
+// 		return {};
+// 	},
+// 	dispatch => {
+// 		return {dispatch} // which is the same of: return {dispatch:dispatch}
+// 	}
+// )
+
+//which is equal to the code below
+
+AddTodo = connect()(AddTodo)
+
 
 const Footer = () => {
 	return (

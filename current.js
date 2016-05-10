@@ -52,6 +52,24 @@ const getVisibleTodos = (todos, currentFilter) => {
 }
 
 
+
+/*---------------------------------------------------
+							ACTION CREATORS
+--------------------------------------------------- */
+var initialId = 1;
+const addTodo = (text) => {
+	return {type:"ADD_TODO", id:initialId++, text};
+}
+
+const toggleTodo = (id) => {
+	return {type: "TOGGLE_TODO", id}
+}
+
+const filterTodos = (filter) => {
+	return {type:"SET_VISIBILITY_FILTER", filter}
+}
+
+
 /*---------------------------------------------------
 							COMPONENTS
 --------------------------------------------------- */
@@ -110,7 +128,7 @@ const mapStateToLinkProps = (state, ownProps) => {
 const mapDispatchToLinkProps = (dispatch, ownProps) => {
 	return {
 		onClick: () => {
-			dispatch({type:"SET_VISIBILITY_FILTER", filter:ownProps.filter});
+			dispatch(filterTodos(ownProps.filter));
 		}	
 	};
 };
@@ -129,10 +147,7 @@ const mapStateToVisibleTodoListProps = (state) => {
 const mapDispatchToVisibleTodoListProps = (dispatch) => {
 	return {
 		onTodoClick : (id) => {
-			dispatch({
-				type:"TOGGLE_TODO",
-  			id
-  		})
+			dispatch(toggleTodo(id))
 		}
 	};
 };
@@ -143,13 +158,11 @@ const VisibleTodoList = connect(
 )(TodoList);
 
 
-var initialId = 1;
 let AddTodo = ({dispatch}) => {
 	let input;
 
 	function handleAddClick(){
-    const action = {type:"ADD_TODO", id:initialId++, text:input.value};
-    dispatch(action);
+    dispatch(addTodo(input.value));
     input.value = "";
   }
 
